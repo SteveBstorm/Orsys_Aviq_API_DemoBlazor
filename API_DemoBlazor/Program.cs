@@ -1,4 +1,9 @@
 using API_DemoBlazor.Services;
+using API_DemoBlazor.Tools;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Data.SqlClient;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +14,36 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddTransient<SqlConnection>(cs => new SqlConnection(
+        builder.Configuration.GetConnectionString("default")));
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<JwtGenerator>();
+
 builder.Services.AddSingleton<MovieService>();
+
+//Microsoft.AspNetCore.Authentication.JwtBearer
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+    options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtGenerator.secretKey)),
+            ValidateLifetime = true,
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidAudience = "monapp.com",
+            ValidIssuer = "monapi.com"
+        };
+    }
+    );
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("adminPolicy", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("connectedPolicy", policy => policy.RequireAuthenticatedUser());
+});
 
 var app = builder.Build();
 
@@ -24,6 +58,8 @@ app.UseHttpsRedirection();
 
 app.UseCors(o=> o.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
+//Dans ce sens 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
