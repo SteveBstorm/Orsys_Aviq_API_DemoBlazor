@@ -1,3 +1,4 @@
+using API_DemoBlazor.Hubs;
 using API_DemoBlazor.Services;
 using API_DemoBlazor.Tools;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -45,6 +46,14 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("connectedPolicy", policy => policy.RequireAuthenticatedUser());
 });
 
+builder.Services.AddCors(option => option.AddPolicy("signalRPolicy", options =>
+{
+    options.WithOrigins("https://localhost:7004").AllowCredentials().AllowAnyHeader()
+        .WithMethods("GET", "POST");
+}));
+
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -56,12 +65,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(o=> o.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-
+//app.UseCors(o=> o.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+app.UseCors("signalRPolicy");
 //Dans ce sens 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("chathub");
 
 app.Run();
