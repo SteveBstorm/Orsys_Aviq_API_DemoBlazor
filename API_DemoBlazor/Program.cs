@@ -54,6 +54,8 @@ builder.Services.AddCors(option => option.AddPolicy("signalRPolicy", options =>
 
 builder.Services.AddSignalR();
 
+builder.Services.AddSingleton<MovieHub>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -74,5 +76,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<ChatHub>("chathub");
+app.MapHub<MovieHub>("moviehub");
 
 app.Run();

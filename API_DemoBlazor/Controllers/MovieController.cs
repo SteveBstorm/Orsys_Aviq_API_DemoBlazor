@@ -1,4 +1,5 @@
-﻿using API_DemoBlazor.Models;
+﻿using API_DemoBlazor.Hubs;
+using API_DemoBlazor.Models;
 using API_DemoBlazor.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,9 +13,11 @@ namespace API_DemoBlazor.Controllers
     public class MovieController : ControllerBase
     {
         private readonly MovieService _movieService;
-        public MovieController(MovieService movieService)
+        private readonly MovieHub _movieHub;
+        public MovieController(MovieService movieService, MovieHub movieHub)
         {
             _movieService = movieService;
+            _movieHub = movieHub;
         }
 
         [Authorize("connectedPolicy")]
@@ -26,9 +29,10 @@ namespace API_DemoBlazor.Controllers
 
         [Authorize("adminPolicy")]
         [HttpPost]
-        public IActionResult Post([FromBody] Movie m)
+        public async Task<IActionResult> Post([FromBody] Movie m)
         {
             _movieService.Add(m);
+            await _movieHub.NewMovie();
             return Ok();
         }
     }
