@@ -48,8 +48,8 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddCors(option => option.AddPolicy("signalRPolicy", options =>
 {
-    options.WithOrigins("https://localhost:7004").AllowCredentials().AllowAnyHeader()
-        .WithMethods("GET", "POST");
+    options.WithOrigins("http://localhost:4200").AllowCredentials().AllowAnyHeader()
+        .AllowAnyMethod();
 }));
 
 builder.Services.AddSignalR();

@@ -20,7 +20,7 @@ namespace API_DemoBlazor.Controllers
             _movieHub = movieHub;
         }
 
-        [Authorize("connectedPolicy")]
+        //[Authorize("connectedPolicy")]
         [HttpGet]
         public IActionResult Get()
         {

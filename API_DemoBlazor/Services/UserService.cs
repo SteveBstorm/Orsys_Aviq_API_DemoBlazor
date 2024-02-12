@@ -40,5 +40,11 @@ namespace API_DemoBlazor.Services
             }
             return null;
         }
+
+        public IEnumerable<User> GetUsers()
+        {
+            string sql = "SELECT * FROM Users";
+            return _connection.Query<User>(sql);  
+        }
     }
 }

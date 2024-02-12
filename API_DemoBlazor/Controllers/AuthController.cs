@@ -1,6 +1,7 @@
 ﻿using API_DemoBlazor.Models;
 using API_DemoBlazor.Services;
 using API_DemoBlazor.Tools;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +36,13 @@ namespace API_DemoBlazor.Controllers
             User? connectedUser = _service.Login(form.Email, form.Password);
             if (connectedUser == null) return BadRequest("Connexion pas bien");
             return Ok(_jwt.GenerateToken(connectedUser));
+        }
+
+        [Authorize("connectedPolicy")]
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            return Ok(_service.GetUsers());
         }
     }
 }
